@@ -9,39 +9,62 @@ import glob
 import cv2
 import numpy
 import random
-
-
 #building model
 model = Sequential()                                                        #height,width
-model.add(Conv2D(4,(3,3),activation='relu',border_mode='same',input_shape=(1200,1920,3)))# => (None, 28, 28, 4)
+model.add(Conv2D(10,(2,2),activation='relu',border_mode='same',input_shape=(40,40,3)))# => (None, 28, 28, 4)
 model.add(MaxPooling2D((2,2)))# => (None, 14, 14, 4)
-model.add(Conv2D(4,(2,2),activation='relu',border_mode='same'))# => (None, 14, 14, 4)
+model.add(Conv2D(20,(2,2),activation='relu',border_mode='same'))# => (None, 14, 14, 4)
 model.add(MaxPooling2D((2,2))) # => (None, 7, 7, 4)
-model.add(Conv2D(4,(2,2),activation='relu',border_mode='same')) # => (None, 7, 7, 4)
+model.add(Conv2D(30,(2,2),activation='relu',border_mode='same')) # => (None, 7, 7, 4)
 model.add(UpSampling2D((2,2))) # (None, 14, 14, 4)
-model.add(Conv2D(4,(2,2),activation='relu',border_mode='same'))# (None, 14, 14, 4)
+model.add(Conv2D(30,(2,2),activation='relu',border_mode='same'))# (None, 14, 14, 4)
 model.add(UpSampling2D((2,2))) # (None, 28, 28, 4)
-model.add(Conv2D(3,(4,4),activation='relu',border_mode='same')) # (None, 28, 28, 1)
+model.add(Conv2D(3,(2,2),activation='relu',border_mode='same')) # (None, 28, 28, 1)
+# model.add(UpSampling2D((2,2))) # (None, 28, 28, 4)
+# model.add(Conv2D(3,(2,2),activation='relu',border_mode='same')) # (None, 28, 28, 1)
+# model.add(UpSampling2D((2,2))) # (None, 28, 28, 4)
+# model.add(Conv2D(30,(2,2),activation='relu',border_mode='same')) # (None, 28, 28, 1)
+# model.add(UpSampling2D((2,2))) # (None, 28, 28, 4)
+# model.add(Conv2D(3,(2,2),activation='relu',border_mode='same')) # (None, 28, 28, 1)
+# model.add(UpSampling2D((2,2))) # (None, 28, 28, 4)
+# model.add(Conv2D(3,(2,2),activation='relu',border_mode='same')) # (None, 28, 28, 1)
 
 #setting up the parameters
-model.compile(optimizer='adam', loss='mse')
+model.compile(optimizer='adam', loss='mse',metrics=['accuracy'])
 model.summary()
 
 x_train = []
-
+x_target = []
 images = glob.glob('/home/raghu/Desktop/mohan/finalYear/vehicle/objects/*.jpg')
 for name in images:
-    img = cv2.imread(name)#,cv2.IMREAD_GRAYSCALE)
+    img_main = cv2.imread(name)#,cv2.IMREAD_GRAYSCALE)
     #cv2.imshow("lalala", img)
     #k = cv2.waitKey(0)
-
+    img = cv2.resize(img_main,(40,40))
+    img_target = cv2.resize(img_main,(40,40))
     img = img_to_array(img)
 
     x_train.append(list(img))
-    #break
+    x_target.append(list(img_target))
+    break
 #model.fit(numpy.asarray(x_train),x_train)
-model.fit(numpy.asarray(x_train), numpy.asarray(x_train), batch_size=64, nb_epoch=10)
-
+model.fit(numpy.asarray(x_train), numpy.asarray(x_target), batch_size=64, nb_epoch=100000)
+result = model.predict(numpy.asarray(x_train))
+vis2 = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+vis2 = cv2.resize(vis2,(40, 40))
+cv2.imshow("shdg",cv2.resize(img_main,(40,40)))
+cv2.waitKey(0)
+cv2.imshow("shdg",img_target)
+cv2.waitKey(0)
+cv2.imshow("shdg",vis2)
+cv2.waitKey(0)
+'''img1 = cv2.blur(img_main,(20,20))
+img1 = cv2.resize(img1,(400,400))
+cv2.imshow("shdg",img1)
+cv2.waitKey(0)
+img2 = cv2.resize(img_main,(800,800))
+cv2.imshow("shdg",img2)
+cv2.waitKey(0)'''
 #
 #
 # x_test=[]
